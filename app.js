@@ -1,4 +1,5 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -23,7 +24,23 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.route('/')
     //list all our inventory items
-    .get(inventory.list)/
+    .get(inventory.list)
+    //create new invetory items
+    .post(inventory.create);
+
+app.get('/new', inventory.new);
+
+app.route('/:id')
+    //view a single item
+    .get(inventory.show)
+    //update a single item
+    .post(inventory.update)
+    // delete a single item
+    .delete(inventory.delete);
+
+app.route('/:id/edit')
+    //open edit form
+    .get(inventory.edit);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -58,3 +75,13 @@ app.use(function(err, req, res, next) {
 
 
 module.exports = app;
+
+mongoose.connect('mongodb://aaronag:faust9393@ds031651.mongolab.com:31651/wif');
+
+var db = mongoose.connection;
+db.on('error', function callback () {
+    console.error('connection error');
+});
+db.once('open', function callback () {
+    console.error('connection success');
+});
